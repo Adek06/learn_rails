@@ -34,7 +34,7 @@ Rails.application.configure do
   # Don't care if the mailer can't send.
   config.action_mailer.raise_delivery_errors = true
   config.action_mailer.delivery_method = :test
-  host = '47.96.147.178'
+  host = '47.96.147.178:3000'
 # 在云端 IDE 中使用这一行
 # config.action_mailer.default_url_options = { host: host, protocol: 'https' }
 # 在本地设备中使用这一行

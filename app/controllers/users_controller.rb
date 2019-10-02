@@ -18,9 +18,9 @@ class UsersController < ApplicationController
   def create
     @user = User.new(user_params)
     if @user.save
-      log_in @user
-      flash[:success] = "歡迎注冊！"
-      redirect_to @user
+      UserMailer.account_activation(@user).deliver_now
+      flash[:info] = "請先在郵箱裏激活賬號"
+      redirect_to root_url
     else
       render 'new'
     end
