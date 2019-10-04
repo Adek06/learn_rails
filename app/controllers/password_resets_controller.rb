@@ -1,6 +1,7 @@
-aclass PasswordResetsController < ApplicationController
-  before_action :get_user,   only:[:edit, :update]
-  before_action :valid_user, only:[:edit, :update]
+class PasswordResetsController < ApplicationController
+  before_action :get_user,         only:[:edit, :update]
+  before_action :valid_user,       only:[:edit, :update]
+  before_action :check_expiration, only:[:edit, :update]
 
   def new
   end
@@ -21,7 +22,25 @@ aclass PasswordResetsController < ApplicationController
   def edit
   end
 
+  def update
+    if params[:user][:password].empty?
+      @user.errors.add(:password, "不能爲空")
+      render 'edit'
+    elsif @user.update(user_params)
+      log_in @user
+      @user.update_attribute(:reset_digest, nil)
+      flash[:success] = "密碼已經重設"
+      redirect_to @user
+    else
+      render 'edit'
+    end
+  end
+
   private
+    def user_params
+      params.require(:user).permit(:password, :password_confirmation)
+    end
+
     def get_user
       @user = User.find_by(email: params[:email])
     end
@@ -33,4 +52,11 @@ aclass PasswordResetsController < ApplicationController
           redirect_to root_url
       end
     end
-end
+
+    def check_expiration
+      if @user.password_reset_expired?
+        flash[:danger] = "鏈接已失效"
+        redirect_to new_password_reset_url
+      end
+    end
+  end
